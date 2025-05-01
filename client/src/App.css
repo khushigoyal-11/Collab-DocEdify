@@ -1,0 +1,54 @@
+/* client/src/App.css */
+
+.App {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: var(--bg-color);
+}
+
+h1 {
+  margin-bottom: 1.5rem;
+  color: var(--accent);
+  font-size: 2rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+textarea {
+  width: 100%;
+  max-width: 800px;
+  min-height: 60vh;
+  padding: 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  background-color: var(--textarea-bg);
+  color: var(--textarea-fg);
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  resize: vertical;
+  font-family: 'Source Code Pro', monospace;
+}
+
+button {
+  margin-top: 1rem;
+  padding: 0.6rem 1.2rem;
+  background-color: var(--accent);
+  color: var(--bg-color);
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.1s ease-in-out;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+button:active {
+  transform: scale(0.95);
+}
