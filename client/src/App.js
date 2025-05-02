@@ -19,10 +19,11 @@ function App() {
   // Connect to Socket.IO server once we have a JWT
   const connectSocket = (jwt) => {
     if (socketRef.current) socketRef.current.disconnect();
-    const socket = io(`ws://${window.location.hostname}:5000`, {
+    const socket = io(API_BASE, {
       auth: { token: jwt },
       transports: ['websocket'],
     });
+    
     socketRef.current = socket;
 
     socket.on('connect',     () => console.log('⚡ Connected'));
