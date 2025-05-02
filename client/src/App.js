@@ -15,7 +15,7 @@ function App() {
   const [historyList, setHistoryList] = useState([]);
   const socketRef = useRef(null);
 
-  // 1) Connect to socket.io with auth
+  // Connect to socket.io with auth
   const connectSocket = (authToken, username) => {
     if (socketRef.current) socketRef.current.disconnect();
     const socket = io(API_BASE, {
@@ -46,7 +46,7 @@ function App() {
     socket.on('disconnect', () => console.log('🔒 Disconnected'));
   };
 
-  // 2) Registration
+  // Registration
   const handleRegister = async () => {
     const res = await fetch(`${API_BASE}/api/register`, {
       method: 'POST',
@@ -61,7 +61,7 @@ function App() {
     setView('editor');
   };
 
-  // 3) Login
+  // Login
   const handleLogin = async () => {
     const res = await fetch(`${API_BASE}/api/login`, {
       method: 'POST',
@@ -76,7 +76,7 @@ function App() {
     setView('editor');
   };
 
-  // 4) Emit document changes
+  // Emit document changes
   const handleChange = (e) => {
     const text = e.target.value;
     console.log('📤 Emitting update:', text);
@@ -84,7 +84,7 @@ function App() {
     socketRef.current.emit('update', text);
   };
 
-  // 5) Emit cursor position
+  // Emit cursor position
   const handleCursor = (e) => {
     const payload = {
       user: currentUser,
@@ -94,7 +94,7 @@ function App() {
     socketRef.current.emit('cursor', payload);
   };
 
-  // 6) Save version
+  // Save version
   const handleSave = async () => {
     await fetch(`${API_BASE}/api/history/save`, {
       method: 'POST',
@@ -103,7 +103,7 @@ function App() {
     alert('Document saved!');
   };
 
-  // 7) Load history list
+  // Load history list
   const loadHistory = async () => {
     const res = await fetch(`${API_BASE}/api/history`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -114,7 +114,7 @@ function App() {
     setView('history');
   };
 
-  // 8) Roll back to a past version
+  // Roll back to a past version
   const rollback = async (id) => {
     await fetch(`${API_BASE}/api/history/${id}/rollback`, {
       method: 'POST',
@@ -123,9 +123,7 @@ function App() {
     setView('editor');
   };
 
-  // —— RENDERING ——
-
-  // Login / Register screen
+  // Render Login / Register screen
   if (view === 'login') {
     return (
       <div className="login centered">
@@ -151,7 +149,7 @@ function App() {
     );
   }
 
-  // History screen
+  // Render History screen
   if (view === 'history') {
     return (
       <div className="editor-container">
@@ -172,9 +170,16 @@ function App() {
   // Main editor view
   return (
     <div className="editor-container">
-      <div className="presence-bar">
-        Online: {presence.map((u) => u.username).join(', ')}
+      {/* Header with presence and current user */}
+      <div className="editor-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="presence-bar">
+          Online: {presence.map((u) => u.username).join(', ')}
+        </div>
+        <div className="current-user">
+          You: <strong>{currentUser}</strong>
+        </div>
       </div>
+
       <div style={{ position: 'relative' }}>
         <textarea
           value={doc}
