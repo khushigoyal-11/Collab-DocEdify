@@ -9,7 +9,9 @@ const fs         = require('fs');
 const path       = require('path');
 const { v4: uuidv4 } = require('uuid');
 
-const JWT_SECRET  = 'replace_with_a_strong_secret';
+// Load secret and port from environment
+const JWT_SECRET  = process.env.JWT_SECRET;
+const PORT        = process.env.PORT || 5000;
 const HISTORY_FILE = path.join(__dirname, 'history.json');
 
 const app = express();
@@ -55,24 +57,20 @@ app.post('/api/login', async (req, res) => {
 });
 
 // --- HISTORY ENDPOINTS ---
-// List versions
 app.get('/api/history', (_req, res) => {
   res.json(history.map(h => ({ id: h.id, timestamp: h.timestamp })));
 });
-// Get one version
 app.get('/api/history/:id', (req, res) => {
   const item = history.find(h => h.id === req.params.id);
   if (!item) return res.status(404).json({ error: 'Not found' });
   res.json(item);
 });
-// Save a new version (manual)
 app.post('/api/history/save', (_req, res) => {
   const entry = { id: uuidv4(), timestamp: Date.now(), content: documentState };
   history.push(entry);
   saveHistory();
   res.json(entry);
 });
-// Rollback
 app.post('/api/history/:id/rollback', (req, res) => {
   const item = history.find(h => h.id === req.params.id);
   if (!item) return res.status(404).json({ error: 'Not found' });
@@ -88,8 +86,7 @@ app.post('/api/history/:id/rollback', (req, res) => {
 const server = http.createServer(app);
 const io     = new Server(server, { cors: { origin: '*' } });
 
-const online = new Map(); // socket.id → { id, username }
-
+const online = new Map();
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
   if (!token) return next(new Error('Auth error'));
@@ -100,22 +97,18 @@ io.use((socket, next) => {
     next(new Error('Auth error'));
   }
 });
-
 io.on('connection', (socket) => {
   const { id, username } = socket.user;
   online.set(socket.id, { id, username });
 
-  // Send init + presence
   socket.emit('init', documentState);
   io.emit('presence', Array.from(online.values()));
 
-  // On edit → broadcast, but **do not** auto-save history here
   socket.on('update', (newDoc) => {
     documentState = newDoc;
     io.emit('update', documentState);
   });
 
-  // Cursors
   socket.on('cursor', (pos) => {
     socket.broadcast.emit('cursor', { username, position: pos });
   });
@@ -126,8 +119,4 @@ io.on('connection', (socket) => {
   });
 });
 
-// Start server
-const PORT = 5000;
-server.listen(PORT, () => {
-  console.log(`🔌 Server listening on http://localhost:${PORT}`);
-});
+server.listen(PORT, () => console.log(`🔌 Server listening on port ${PORT}`));
