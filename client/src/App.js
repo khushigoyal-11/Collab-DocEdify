@@ -5,17 +5,17 @@ import './App.css';
 const API_BASE = process.env.REACT_APP_API_URL || '';
 
 function App() {
-  const [view, setView]           = useState('login');
+  const [view, setView]               = useState('login');
   const [currentUser, setCurrentUser] = useState('');
-  const [password, setPassword]     = useState('');
-  const [token, setToken]           = useState('');
-  const [doc, setDoc]               = useState('');
-  const [presence, setPresence]     = useState([]);
-  const [cursors, setCursors]       = useState({});
+  const [password, setPassword]       = useState('');
+  const [token, setToken]             = useState('');
+  const [doc, setDoc]                 = useState('');
+  const [presence, setPresence]       = useState([]);
+  const [cursors, setCursors]         = useState({});
   const [historyList, setHistoryList] = useState([]);
   const socketRef = useRef(null);
 
-  // Initialize socket connection\; takes token and username
+  // Initialize socket connection; takes token and username
   const connectSocket = (authToken, username) => {
     if (socketRef.current) socketRef.current.disconnect();
     const socket = io(API_BASE, {
@@ -28,11 +28,14 @@ function App() {
     socket.on('init', (initial) => setDoc(initial));
     socket.on('update', (updated) => setDoc(updated));
     socket.on('presence', (list) => setPresence(list));
+
+    // ← no change needed here
     socket.on('cursor', ({ user, position }) => {
       if (user !== username) {
         setCursors(prev => ({ ...prev, [user]: position }));
       }
     });
+
     socket.on('disconnect', () => console.log('🔒 Disconnected'));
   };
 
@@ -70,8 +73,12 @@ function App() {
     socketRef.current.emit('update', text);
   };
 
+  // we emit `{ user, position }` here
   const handleCursor = (e) => {
-    socketRef.current.emit('cursor', { user: currentUser, position: e.target.selectionStart });
+    socketRef.current.emit('cursor', {
+      user: currentUser,
+      position: e.target.selectionStart
+    });
   };
 
   const handleSave = async () => {
@@ -157,14 +164,14 @@ function App() {
           {Object.entries(cursors).map(([user, pos]) => {
             const before = doc.slice(0, pos);
             const lines = before.split('\n');
-            const row = lines.length - 1;
-            const col = lines[lines.length - 1].length;
+            const row  = lines.length - 1;
+            const col  = lines[lines.length - 1].length;
             return (
               <div
                 key={user}
                 style={{
                   position: 'absolute',
-                  top: row * 24 + 8,
+                  top:  row * 24 + 8,
                   left: col * 10 + 8,
                   background: '#bb86fc',
                   padding: '2px 4px',
