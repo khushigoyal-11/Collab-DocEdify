@@ -3,7 +3,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import './App.css';
 
-// Base URL for API calls: uses env var in production, empty string locally
 const API_BASE = process.env.REACT_APP_API_URL || '';
 
 function App() {
@@ -16,27 +15,26 @@ function App() {
   const [cursors, setCursors]   = useState({});
   const socketRef = useRef(null);
 
-  // Connect to Socket.IO server once we have a JWT
   const connectSocket = (jwt) => {
     if (socketRef.current) socketRef.current.disconnect();
     const socket = io(API_BASE, {
       auth: { token: jwt },
       transports: ['websocket'],
     });
-    
     socketRef.current = socket;
 
     socket.on('connect',     () => console.log('⚡ Connected'));
     socket.on('init',        (initial)       => setDoc(initial));
     socket.on('update',      (updated)       => setDoc(updated));
     socket.on('presence',    (list)          => setPresence(list));
-    socket.on('cursor',      ({username,pos}) =>
-      setCursors(prev => ({ ...prev, [username]: pos }))
-    );
+    socket.on('cursor',      ({ username: user, pos }) => {
+      if (user !== username) {
+        setCursors(prev => ({ ...prev, [user]: pos }));
+      }
+    });
     socket.on('disconnect',  () => console.log('🔒 Disconnected'));
   };
 
-  // Register
   const handleRegister = async () => {
     const res = await fetch(`${API_BASE}/api/register`, {
       method: 'POST',
@@ -50,7 +48,6 @@ function App() {
     setView('editor');
   };
 
-  // Login
   const handleLogin = async () => {
     const res = await fetch(`${API_BASE}/api/login`, {
       method: 'POST',
@@ -64,19 +61,41 @@ function App() {
     setView('editor');
   };
 
-  // Text change
   const handleChange = e => {
     const text = e.target.value;
     setDoc(text);
     socketRef.current.emit('update', text);
   };
 
-  // Cursor move
   const handleCursor = e => {
-    socketRef.current.emit('cursor', e.target.selectionStart);
+    socketRef.current.emit('cursor', {
+      username,
+      pos: e.target.selectionStart
+    });
   };
 
-  // Login/Register view
+  const handleSave = async () => {
+    await fetch(`${API_BASE}/api/history/save`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ content: doc })
+    });
+    alert('Document saved');
+  };
+
+  const openHistory = async () => {
+    const res = await fetch(`${API_BASE}/api/history`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    const data = await res.json();
+    alert(data.map((d, i) => `${i + 1}. ${d}`).join('\n'));
+  };
+
   if (view === 'login') {
     return (
       <div className="login centered">
@@ -102,7 +121,6 @@ function App() {
     );
   }
 
-  // Editor view
   return (
     <div className="editor-container">
       <div className="presence-bar">
@@ -128,6 +146,9 @@ function App() {
                      position:'absolute',
                      top: lineNo * 24 + 8,
                      left: colNo * 10 + 8,
+                     background: 'yellow',
+                     padding: '2px 4px',
+                     borderRadius: '4px'
                    }}>
                 {user}
               </div>
@@ -135,6 +156,13 @@ function App() {
           })}
         </div>
       </div>
+
+      {token && (
+        <div className="button-group">
+          <button onClick={handleSave}>💾 Save</button>
+          <button onClick={openHistory}>📜 History</button>
+        </div>
+      )}
     </div>
   );
 }
