@@ -1,54 +1,181 @@
-/* client/src/App.css */
+/* App.css */
 
-.App {
+/* ----------------------------------
+   GLOBAL GUTTERS
+-----------------------------------*/
+body {
+  padding: 1rem;       /* ensures form/editor never flush to edge */
+  box-sizing: border-box;
+}
+
+/* ----------------------------------
+   UTILITY
+-----------------------------------*/
+.centered {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  min-height: 100vh;
-  padding: 2rem;
-  background-color: var(--bg-color);
+  justify-content: center;
 }
 
-h1 {
+/* ----------------------------------
+   LOGIN / REGISTER
+-----------------------------------*/
+.login {
+  height: 100%;
+  background: #121212;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;     /* outer gutter */
+  box-sizing: border-box;
+}
+.login .form-container {
+  width: 100%;
+  max-width: 400px;    /* never wider than 400px */
+  background: #1f1f1f;
+  padding: 2rem;       /* inner padding */
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.7);
+  margin: 0 auto;
+}
+.login h2 {
   margin-bottom: 1.5rem;
-  color: var(--accent);
-  font-size: 2rem;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  font-weight: 500;
+  text-align: center;
+  color: #fff;
+}
+.login input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background: #2c2c2c;
+  color: #E0E0E0;
+  font-size: 1rem;
+}
+.login input::placeholder {
+  color: #888;
+}
+/* Centered form row spacing */
+.login .button-row {
+  display: flex;
+  gap: 1rem;
+}
+.login button {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.login button:first-of-type {
+  background: #bb86fc;
+  color: #121212;
+}
+.login button:last-of-type {
+  background: #03dac6;
+  color: #121212;
+}
+.login button:hover {
+  opacity: 0.9;
 }
 
+/* ----------------------------------
+   EDITOR
+-----------------------------------*/
+.editor-container {
+  width: 100%;
+  max-width: 800px;    /* limit width */
+  margin: 0 auto;      /* center */
+  padding: 1rem 0;
+  box-sizing: border-box;
+  background: #121212;
+}
+.presence-bar {
+  background: #1f1f1f;
+  color: #E0E0E0;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.presence-bar button {
+  background: #bb86fc;
+  border: none;
+  color: #121212;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.cursor-bar {
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  color: #bbb;
+}
 textarea {
   width: 100%;
-  max-width: 800px;
-  min-height: 60vh;
+  height: calc(100vh - 200px);
   padding: 1rem;
+  font-family: 'Roboto', monospace;
   font-size: 1rem;
   line-height: 1.5;
-  background-color: var(--textarea-bg);
-  color: var(--textarea-fg);
-  border: none;
+  border: 1px solid #333;
   border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  resize: vertical;
-  font-family: 'Source Code Pro', monospace;
+  background: #1f1f1f;
+  color: #E0E0E0;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.7);
+  resize: none;
+  box-sizing: border-box;
+  position: relative;
 }
 
-button {
-  margin-top: 1rem;
-  padding: 0.6rem 1.2rem;
-  background-color: var(--accent);
-  color: var(--bg-color);
+/* ----------------------------------
+   HISTORY LIST
+-----------------------------------*/
+.editor-container ul {
+  list-style: none;
+  padding: 0;
+  color: #E0E0E0;
+}
+.editor-container li {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.5rem 0;
+}
+.editor-container li button {
+  background: #03dac6;
   border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  color: #121212;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
   cursor: pointer;
-  transition: transform 0.1s ease-in-out;
 }
 
-button:hover {
-  transform: scale(1.05);
+/* ----------------------------------
+   CURSOR OVERLAY
+-----------------------------------*/
+/* Cursor-overlay container must fill wrapper */
+.cursors-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
 }
-
-button:active {
-  transform: scale(0.95);
+.cursors-overlay div {
+  background-color: #bb86fc;
+  color: #121212;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
 }
